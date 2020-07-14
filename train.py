@@ -23,7 +23,12 @@ def main():
     opt = Options().parse()
     data = load_data(opt)
     model = load_model(opt, data)
-    model.train()
+    if opt.phase == 'train':
+        model.train()
+    elif opt.phase == 'test':
+        model.test_best_weights()
+    elif opt.phase == 'demo':
+        pass
 
 if __name__ == '__main__':
     main()

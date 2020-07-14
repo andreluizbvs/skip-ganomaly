@@ -21,16 +21,17 @@ import matplotlib.pyplot as plt
 from lib.models.networks import NetD, weights_init, define_G, define_D, get_scheduler
 from lib.visualizer import Visualizer
 from lib.loss import l2_loss
+from lib.evaluate import evaluate
 from lib.evaluate import roc
 from lib.models.basemodel import BaseModel
 
 
 
 class Skipganomaly(BaseModel):
-    """GANomaly Class
+    """Skip-GANomaly Class
     """
     @property
-    def name(self): return 'skip-ganomaly'
+    def name(self): return 'skipganomaly'
 
     def __init__(self, opt, data=None):
         super(Skipganomaly, self).__init__(opt, data)
@@ -148,8 +149,8 @@ class Skipganomaly(BaseModel):
         self.update_netd()
 
     ##
-    def test(self, plot_hist=False):
-        """ Test GANomaly model.
+    def test(self, plot_hist=False, is_best=False):
+        """ Test Skip-GANomaly model.
 
         Args:
             data ([type]): Dataloader for the test set
@@ -160,7 +161,7 @@ class Skipganomaly(BaseModel):
         with torch.no_grad():
             # Load the weights of netg and netd.
             if self.opt.load_weights:
-                self.load_weights(is_best=True)
+                self.load_weights(is_best=is_best)
 
             self.opt.phase = 'test'
 
@@ -218,16 +219,16 @@ class Skipganomaly(BaseModel):
             # Scale error vector between [0, 1]
             self.an_scores = (self.an_scores - torch.min(self.an_scores)) / \
                              (torch.max(self.an_scores) - torch.min(self.an_scores))
-            auc = roc(self.gt_labels, self.an_scores)
-            performance = OrderedDict([('Avg Run Time (ms/batch)', self.times), ('AUC', auc)])
+            auc = evaluate(self.gt_labels, self.an_scores, metric=self.opt.metric)
+            performance = OrderedDict([('Avg Run Time (ms/batch)', self.times), (self.opt.metric, auc)])
 
             ##
             # PLOT HISTOGRAM
             if plot_hist:
-                plt.ion()
+                # plt.ion()
                 # Create data frame for scores and labels.
-                scores['scores'] = self.an_scores
-                scores['labels'] = self.gt_labels
+                scores['scores'] = self.an_scores.cpu()
+                scores['labels'] = self.gt_labels.cpu()
                 hist = pd.DataFrame.from_dict(scores)
                 hist.to_csv("histogram.csv")
 
@@ -243,6 +244,7 @@ class Skipganomaly(BaseModel):
                 plt.legend()
                 plt.yticks([])
                 plt.xlabel(r'Anomaly Scores')
+                plt.show()
 
             ##
             # PLOT PERFORMANCE

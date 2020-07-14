@@ -55,8 +55,8 @@ class Options():
 
         ##
         # Train
-        self.parser.add_argument('--print_freq', type=int, default=100, help='frequency of showing training results on console')
-        self.parser.add_argument('--save_image_freq', type=int, default=100, help='frequency of saving real and fake images')
+        self.parser.add_argument('--print_freq', type=int, default=2, help='frequency of showing training results on console')
+        self.parser.add_argument('--save_image_freq', type=int, default=2, help='frequency of saving real and fake images')
         self.parser.add_argument('--save_test_images', action='store_true', help='Save test images for demo.')
         self.parser.add_argument('--load_weights', action='store_true', help='Load the pretrained weights')
         self.parser.add_argument('--resume', default='', help="path to checkpoints (to continue training)")

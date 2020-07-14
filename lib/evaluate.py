@@ -20,14 +20,14 @@ rc('text', usetex=True)
 
 def evaluate(labels, scores, metric='roc'):
     if metric == 'roc':
-        return roc(labels, scores)
+        return roc(labels, scores, './')
     elif metric == 'auprc':
-        return auprc(labels, scores)
+        return auprc(labels.cpu(), scores.cpu())
     elif metric == 'f1_score':
-        threshold = 0.20
+        threshold = 0.12
         scores[scores >= threshold] = 1
         scores[scores <  threshold] = 0
-        return f1_score(labels, scores)
+        return f1_score(labels.cpu(), scores.cpu())
     else:
         raise NotImplementedError("Check the evaluation metric.")
 
