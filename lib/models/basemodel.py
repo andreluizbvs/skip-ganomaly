@@ -235,18 +235,6 @@ class BaseModel():
         print(message)
 
     ##
-    def demo(self):
-        """ Demo Skip-GANomaly model.
-
-        Args:
-            data ([type]): Dataloader for the test set
-
-        Raises:
-            IOError: Model weights not found.
-        """
-      
-
-    ##
     def test(self, is_best=False):
         """ Test GANomaly model.
 

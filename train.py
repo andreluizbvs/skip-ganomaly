@@ -28,7 +28,7 @@ def main():
     elif opt.phase == 'test':
         model.test_best_weights()
     elif opt.phase == 'demo':
-        pass
+        model.demo(is_best=True)
 
 if __name__ == '__main__':
     main()

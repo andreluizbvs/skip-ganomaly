@@ -15,9 +15,10 @@ from lib.data.datasets import get_mnist_anomaly_dataset
 class Data:
     """ Dataloader containing train and valid sets.
     """
-    def __init__(self, train, valid):
+    def __init__(self, train, valid, demo):
         self.train = train
         self.valid = valid
+        self.demo = demo
 
 ##
 def load_data(opt):
@@ -32,7 +33,7 @@ def load_data(opt):
     Returns:
         [type]: dataloader
     """
-
+    demo_dl = None
     ##
     # LOAD DATA SET
     if opt.dataroot == '':
@@ -68,9 +69,11 @@ def load_data(opt):
 
         train_ds = ImageFolder(os.path.join(opt.dataroot, 'train'), transform)
         valid_ds = ImageFolder(os.path.join(opt.dataroot, 'test'), transform)
-
+        demo_ds = ImageFolder(os.path.join(opt.dataroot, 'demo'), transform)
     ## DATALOADER
     train_dl = DataLoader(dataset=train_ds, batch_size=opt.batchsize, shuffle=True, drop_last=True)
     valid_dl = DataLoader(dataset=valid_ds, batch_size=opt.batchsize, shuffle=False, drop_last=False)
+    if demo_ds is not None:
+        demo_dl = DataLoader(dataset=demo_ds, batch_size=opt.batchsize, shuffle=False, drop_last=False)
 
-    return Data(train_dl, valid_dl)
+    return Data(train_dl, valid_dl, demo_dl)
