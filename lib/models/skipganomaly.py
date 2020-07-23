@@ -22,6 +22,7 @@ from lib.models.networks import NetD, weights_init, define_G, define_D, get_sche
 from lib.visualizer import Visualizer
 from lib.loss import l2_loss
 from lib.evaluate import evaluate
+from lib.evaluate import evaluate_demo_fscore
 from lib.evaluate import roc
 from lib.models.basemodel import BaseModel
 
@@ -219,7 +220,8 @@ class Skipganomaly(BaseModel):
             # Scale error vector between [0, 1]
             self.an_scores = (self.an_scores - torch.min(self.an_scores)) / \
                              (torch.max(self.an_scores) - torch.min(self.an_scores))
-            auc = evaluate(self.gt_labels, self.an_scores, metric=self.opt.metric)
+            # auc = evaluate(self.gt_labels, self.an_scores, metric=self.opt.metric)
+            auc = evaluate_demo_fscore(self.gt_labels, self.an_scores)
             performance = OrderedDict([('Avg Run Time (ms/batch)', self.times), (self.opt.metric, auc)])
 
             ##

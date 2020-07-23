@@ -10,6 +10,7 @@ Returns:
 from __future__ import print_function
 
 import os
+import pandas as pd
 from sklearn.metrics import roc_curve, auc, average_precision_score, f1_score
 from scipy.optimize import brentq
 from scipy.interpolate import interp1d
@@ -20,16 +21,47 @@ rc('text', usetex=True)
 
 def evaluate(labels, scores, metric='roc'):
     if metric == 'roc':
-        return roc(labels, scores, './')
+        return roc(labels.cpu(), scores.cpu(), './')
     elif metric == 'auprc':
         return auprc(labels.cpu(), scores.cpu())
     elif metric == 'f1_score':
-        threshold = 0.12
+        threshold = 0.081
         scores[scores >= threshold] = 1
         scores[scores <  threshold] = 0
         return f1_score(labels.cpu(), scores.cpu())
     else:
         raise NotImplementedError("Check the evaluation metric.")
+
+def evaluate_demo_fscore(labels, scores):
+    threshold = 0.081
+    score = {}
+    score['scores'] = scores.cpu()
+    score['labels'] = labels.cpu()
+    hist = pd.DataFrame.from_dict(scores)
+    # hist.to_csv("histogram.csv")
+    abn_scr = hist.loc[hist.labels == 1]['scores']
+    nrm_scr = hist.loc[hist.labels == 0]['scores']
+
+    for scr in abn_scr:
+        if scr >= threshold:
+            print("Abnormal image CORRECTLY classified as abnormal/anomalous.")
+            
+        else:
+            print("Abnormal image INCORRECTLY classified as normal.")
+
+    for scr in nrm_scr:
+        if scr >= threshold:
+            print("Normal image INCORRECTLY classified as abnormal/anomalous.")
+            
+        else:
+            print("Normal image CORRECTLY classified as normal.")
+
+    scores[scores >= threshold] = 1
+    scores[scores <  threshold] = 0
+
+    return f1_score(labels.cpu(), scores.cpu())
+
+  
 
 ##
 def roc(labels, scores, saveto=None):
@@ -37,9 +69,6 @@ def roc(labels, scores, saveto=None):
     fpr = dict()
     tpr = dict()
     roc_auc = dict()
-
-    labels = labels.cpu()
-    scores = scores.cpu()
 
     # True/False Positive Rates.
     fpr, tpr, _ = roc_curve(labels, scores)
