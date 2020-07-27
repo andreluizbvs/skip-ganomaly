@@ -188,8 +188,17 @@ class Skipganomaly(BaseModel):
                 # self.set_input(image_test)
                 self.fake = self.netg(image)
 
-                self.class_real, self.feat_real = self.netd(image)
-                self.class_fake, self.feat_fake = self.netd(self.fake)
+                _, self.feat_real = self.netd(image)
+                _, self.feat_fake = self.netd(self.fake)
+
+                # Calculate the anomaly score.
+                si = image.size()
+                sz = self.feat_real.size()
+                rec = (image - self.fake.cpu()).view(si[0], si[1] * si[2] * si[3])
+                lat = (self.feat_real.cpu() - self.feat_fake.cpu()).view(sz[0], sz[1] * sz[2] * sz[3])
+                rec = torch.mean(torch.pow(rec, 2), dim=1)
+                lat = torch.mean(torch.pow(lat, 2), dim=1)
+                error = 0.9*rec + 0.1*lat
 
                 time_o = time.time()
 
@@ -201,8 +210,8 @@ class Skipganomaly(BaseModel):
                     vutils.save_image(image, '%s/%s_real.jpg' % (dst, os.path.basename(image_path)), normalize=True)
                     vutils.save_image(self.fake, '%s/%s_fake.jpg' % (dst, os.path.basename(image_path)), normalize=True)
                 
-                print('Evaluation Normal img: ', self.class_real.item())
-                print('Evaluation Fake img: ', self.class_fake.item())
+                # print('Evaluation Img:', 'Defective' if error < 0.081 else 'Normal')
+                print('Evaluation Img:', error.item())
                 print()
             input('Press Enter to continue...')
 
