@@ -21,14 +21,17 @@ def main():
     """ Training
     """
     opt = Options().parse()
-    data = load_data(opt)
-    model = load_model(opt, data)
     if opt.phase == 'train':
+        data = load_data(opt)
+        model = load_model(opt, data)
         model.train()
     elif opt.phase == 'test':
+        data = load_data(opt)
+        model = load_model(opt, data)
         model.test_best_weights()
     elif opt.phase == 'demo':
-        model.demo(plot_hist=True,is_best=True)
+        model = load_model(opt, None)
+        model.demo()
 
 if __name__ == '__main__':
     main()

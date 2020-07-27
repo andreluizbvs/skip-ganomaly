@@ -160,8 +160,10 @@ class BaseModel():
             fname_d = f"netD_{epoch}.pth"
 
         if path is None:
-            path_g = f"./output/{self.name}/{self.opt.dataset}/train/weights/{fname_g}"
-            path_d = f"./output/{self.name}/{self.opt.dataset}/train/weights/{fname_d}"
+            # path_g = f"./output/{self.name}/{self.opt.dataset}/train/weights/{fname_g}"
+            # path_d = f"./output/{self.name}/{self.opt.dataset}/train/weights/{fname_d}"
+            path_g = f"./output/{self.opt.name}/train/weights/{fname_g}"
+            path_d = f"./output/{self.opt.name}/train/weights/{fname_d}"
 
         # Load the weights of netg and netd.
         print('>> Loading weights...')
