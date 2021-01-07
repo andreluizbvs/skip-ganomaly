@@ -26,9 +26,9 @@ class Options():
 
         ##
         # Base
-        self.parser.add_argument('--dataset', default='cifar10', help='folder | cifar10 | mnist ')
+        self.parser.add_argument('--dataset', default='CPLID', help='folder | cifar10 | mnist ')
         self.parser.add_argument('--dataroot', default='', help='path to dataset')        
-        self.parser.add_argument('--path', default='', help='path to the folder or image to be predicted.')
+        self.parser.add_argument('--path', default='./data/demo', help='path to the folder or image to be predicted.')
         self.parser.add_argument('--batchsize', type=int, default=64, help='input batch size')
         self.parser.add_argument('--workers', type=int, help='number of data loading workers', default=8)
         self.parser.add_argument('--droplast', action='store_true', default=True, help='Drop last batch size.')
@@ -51,7 +51,8 @@ class Options():
         self.parser.add_argument('--outf', default='./output', help='folder to output images and model checkpoints')
         self.parser.add_argument('--manualseed', default=-1, type=int, help='manual seed')
         self.parser.add_argument('--abnormal_class', default='automobile', help='Anomaly class idx for mnist and cifar datasets')
-        self.parser.add_argument('--metric', type=str, default='roc', help='Evaluation metric.')
+        self.parser.add_argument('--metric', type=str, default='roc', help='Evaluation metric: avprc | aucroc | f1_score')
+        self.parser.add_argument('--threshold', type=float, default='0.2', help='Threshold to assess F1-Score.')
 
         ##
         # Train
@@ -62,7 +63,7 @@ class Options():
         self.parser.add_argument('--resume', default='', help="path to checkpoints (to continue training)")
         self.parser.add_argument('--phase', type=str, default='train', help='train, val, test, etc')
         self.parser.add_argument('--iter', type=int, default=0, help='Start from iteration i')
-        self.parser.add_argument('--niter', type=int, default=15, help='number of epochs to train for')
+        self.parser.add_argument('--niter', type=int, default=50, help='number of epochs to train for')
         self.parser.add_argument('--niter_decay', type=int, default=100, help='# of iter to linearly decay learning rate to zero')
         self.parser.add_argument('--beta1', type=float, default=0.5, help='momentum term of adam')
         self.parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate for adam')

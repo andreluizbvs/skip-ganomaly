@@ -160,11 +160,12 @@ class BaseModel():
             fname_d = f"netD_{epoch}.pth"
 
         if path is None:
-            # path_g = f"./output/{self.name}/{self.opt.dataset}/train/weights/{fname_g}"
-            # path_d = f"./output/{self.name}/{self.opt.dataset}/train/weights/{fname_d}"
-            path_g = f"./output/{self.opt.name}/train/weights/{fname_g}"
-            path_d = f"./output/{self.opt.name}/train/weights/{fname_d}"
+            path_g = f"./output/{self.name}/{self.opt.dataset}/train/weights/{fname_g}"
+            path_d = f"./output/{self.name}/{self.opt.dataset}/train/weights/{fname_d}"
+            # path_g = f"./output/{self.opt.name}/train/weights/{fname_g}"
+            # path_d = f"./output/{self.opt.name}/train/weights/{fname_d}"
 
+        print(path_g)
         # Load the weights of netg and netd.
         print('>> Loading weights...')
         weights_g = torch.load(path_g)['state_dict']
@@ -218,7 +219,7 @@ class BaseModel():
         print(f">> Training {self.name} on {self.opt.dataset} to detect {self.opt.abnormal_class}")
         for self.epoch in range(self.opt.iter, self.opt.niter):
             self.train_one_epoch()
-            res = self.test()
+            res = self.test(threshold=self.opt.threshold, plot_hist=False, is_best=False)
             if res[self.opt.metric] > best_auc:
                 best_auc = res[self.opt.metric]
                 self.save_weights(self.epoch)
@@ -230,7 +231,7 @@ class BaseModel():
         """ Test current best weights
         """
         self.opt.load_weights = True
-        res = self.test(plot_hist=True, is_best=True)
+        res = self.test(threshold=self.opt.threshold, plot_hist=True, is_best=True)
         message = '   '
         for key, val in res.items():
             message += '%s: %.3f ' % (key, val)

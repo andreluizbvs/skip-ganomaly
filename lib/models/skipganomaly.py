@@ -151,7 +151,7 @@ class Skipganomaly(BaseModel):
         self.update_netd()
 
     ##
-    def demo(self, is_best=True):
+    def demo(self, threshold, is_best=True):
         """ Demo of Skip-GANomaly model.
 
         Args:
@@ -173,6 +173,9 @@ class Skipganomaly(BaseModel):
 
             # RUN IMAGE
             images_path = [os.path.join(self.opt.path, f) for f in os.listdir(self.opt.path) if os.path.isfile(os.path.join(self.opt.path, f))]
+            print("\nNumber of images: ",len(images_path))
+            num_abn = 0
+            num_nor = 0
             for image_path in images_path:
                 image = Image.open(image_path)
                 
@@ -200,7 +203,7 @@ class Skipganomaly(BaseModel):
                 lat = torch.mean(torch.pow(lat, 2), dim=1)
                 error = 0.9*rec + 0.1*lat
 
-                time_o = time.time()
+                # time_o = time.time()
 
                 # Save demo images.
                 if self.opt.save_test_images:
@@ -210,14 +213,24 @@ class Skipganomaly(BaseModel):
                     vutils.save_image(image, '%s/%s_real.jpg' % (dst, os.path.basename(image_path)), normalize=True)
                     vutils.save_image(self.fake, '%s/%s_fake.jpg' % (dst, os.path.basename(image_path)), normalize=True)
                 
+                # print('Evaluation Img:', 'Defective' if error > 0.081 else 'Normal')
+                
+                if error.item() > threshold:
+                    num_abn = num_abn + 1
+                else:
+                    num_nor = num_nor + 1
+
                 # print('Evaluation Img:', 'Defective' if error < 0.081 else 'Normal')
-                print('Evaluation Img:', error.item())
-                print()
+                # print('Evaluation Img:', error.item())
+                # print()
+                
+            print("Number of images classified as normal: ", num_nor)
+            print("Number of images classified as anomalous/abnormal: ", num_abn)
             input('Press Enter to continue...')
 
 
     ##
-    def test(self, plot_hist=False, is_best=False):
+    def test(self, threshold, plot_hist=False, is_best=False):
         """ Test Skip-GANomaly model.
 
         Args:
@@ -229,7 +242,7 @@ class Skipganomaly(BaseModel):
         with torch.no_grad():
             # Load the weights of netg and netd.
             if self.opt.load_weights:
-                self.load_weights(is_best=is_best)
+                self.load_weights(epoch = self.opt.iter, is_best=is_best)
 
             self.opt.phase = 'test'
 
@@ -287,7 +300,7 @@ class Skipganomaly(BaseModel):
             # Scale error vector between [0, 1]
             self.an_scores = (self.an_scores - torch.min(self.an_scores)) / \
                              (torch.max(self.an_scores) - torch.min(self.an_scores))
-            auc = evaluate(self.gt_labels, self.an_scores, metric=self.opt.metric)
+            auc = evaluate(self.gt_labels, self.an_scores, metric=self.opt.metric, threshold = threshold)
             performance = OrderedDict([('Avg Run Time (ms/batch)', self.times), (self.opt.metric, auc)])
 
             ##

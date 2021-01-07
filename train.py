@@ -31,7 +31,7 @@ def main():
         model.test_best_weights()
     elif opt.phase == 'demo':
         model = load_model(opt, None)
-        model.demo()
+        model.demo(threshold=opt.threshold)
 
 if __name__ == '__main__':
     main()
